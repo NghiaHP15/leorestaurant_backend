@@ -1,0 +1,26 @@
+const express = require("express");
+const RecipeController = require("../controllers/RecipeController");
+
+const { authMiddleWare } = require("../middleware/authMiddleware");
+
+const router = express.Router();
+
+router.post("/create", RecipeController.createRecipe);
+
+router.put("/update/:id", RecipeController.updateRecipe);
+
+router.get("/get-details/:id", RecipeController.getDetail);
+
+router.get("/get-all", RecipeController.getAll);
+
+router.post("/delete", RecipeController.deleteRecipe);
+
+router.post("/increate-point", RecipeController.pointRecipe);
+
+///// web client
+
+router.get("/best-sale", RecipeController.bestSale);
+
+router.get("/best-new", RecipeController.bestNew);
+
+module.exports = router;
