@@ -127,7 +127,7 @@ const deleteSupplier = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = await Supplier.find();
+      const data = await Supplier.find().sort({ createdAt: -1 });
       resolve({
         status: "OK",
         message: "Get all success",

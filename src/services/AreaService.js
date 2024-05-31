@@ -126,7 +126,7 @@ const deleteArea = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Area.find().populate("table");
+      const result = await Area.find().populate("table").sort({ createdAt: -1 });
 
       const booking = [
         ...new Set(

@@ -1,18 +1,35 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const findUser = userId => {
-    return User.findOne({ _id: userId }).populate('permission'); // Sử dụng biểu thức truy vấn thích hợp
+    return User.findOne({ _id: userId }).populate('permission');
+};
+
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.refresh_token; // Get the token from cookies
+    if (!token) {
+        return res.status(403).json('No token provided');
+    }
+
+    jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).json('Failed to authenticate token');
+        }
+
+        // Save user ID in request for use in other middleware
+        req.userId = decoded.id;
+        next();
+    });
 };
 
 const authUser = async (req, res, next) => {
-    const { userId } = req.body;
+    const userId = req.userId;
     try {
         const checkUser = await findUser(userId);
         if (!checkUser) {
             return res.status(403).json('The User is not defined');
         }
         req.user = checkUser;
-
         next();
     } catch (error) {
         console.error('Error authenticating user:', error);
@@ -22,15 +39,8 @@ const authUser = async (req, res, next) => {
 
 const authPage = permissions => {
     return async (req, res, next) => {
-        // const { username } = req.user;
-        // // console.log(username);
-        // if (!permission.includes(username)) {
-        //     return res.status(401).json('You dont have permission');
-        // }
-        // next();
-
         try {
-            const user = await findUser(req.user._id);
+            const user = await findUser(req.user?._id);
             if (!user || !user.permission || !user.permission.name) {
                 return res.status(401).json('Người dùng hoặc quyền không hợp lệ');
             }
@@ -48,6 +58,7 @@ const authPage = permissions => {
 };
 
 module.exports = {
+    verifyToken,
     authUser,
     authPage
 };

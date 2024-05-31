@@ -178,7 +178,7 @@ const deletesUser = (data) => {
 const getAllUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const allUser = await User.find().populate("permission");
+      const allUser = await User.find().populate("permission").sort({ createdAt: -1 });
 
       resolve({
         status: "OK",

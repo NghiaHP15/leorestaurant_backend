@@ -35,7 +35,7 @@ const loginUser = async (req, res) => {
       secure: false,
       samesite: "strict",
     });
-    return res.status(200).json({ ...newReponse, refresh_token });
+    return res.status(200).json(newReponse);
   } catch (error) {
     return res.status(404).json({
       message: error,
@@ -61,6 +61,8 @@ const updateUser = async (req, res) => {
   try {
     const userID = req.params.id;
     const data = req.body;
+    // const token = req.headers;
+    // console.log(object);
     if (!userID) {
       return res.status(200).json({
         status: "ERR",
@@ -80,7 +82,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userID = req.params.id;
-    // const token = req.headers;
+    
     if (!userID) {
       return res.status(200).json({
         status: "ERR",
@@ -159,7 +161,7 @@ const getDetailUser = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const token = req.headers.token.split(" ")[1];
+    const token = req.cookies.refresh_token;
     console.log(token);
     if (!token) {
       return res.status(200).json({

@@ -25,7 +25,7 @@ const updateCustomer = async (req, res) => {
     if (!customerId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The Customer Id is requireds",
+        message: "The Customer Id is required",
       });
     }
     const response = await CustomerService.updateCustomer(customerId, data);

@@ -100,7 +100,7 @@ const deleteMenu = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Menu.find().populate("item");
+      const result = await Menu.find().populate("item").sort({ createdAt: -1 });
 
       resolve({
         status: "OK",

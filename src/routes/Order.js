@@ -2,6 +2,7 @@ const express = require("express");
 const OrderController = require('../controllers/OrderController')
 
 const { authMiddleWare } = require("../middleware/authMiddleware");
+const { verifyToken, authPage, authUser } = require("../middleware/basicAuth");
 
 const router = express.Router();
 

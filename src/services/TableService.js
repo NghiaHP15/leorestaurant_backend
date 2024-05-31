@@ -102,7 +102,7 @@ const deleteTable = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Table.find().populate("categoryTable");
+      const result = await Table.find().populate("categoryTable").sort({ createdAt: -1 });
 
       resolve({
         status: "OK",

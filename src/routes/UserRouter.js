@@ -8,21 +8,23 @@ const {
   authUserMiddleWare,
 } = require("../middleware/authMiddleware");
 
+const { verifyToken, authPage, authUser } = require("../middleware/basicAuth");
+
 router.post("/sign-up", UserController.createUser);
 
-router.post("/create", UserController.createUser);
+router.post("/create", verifyToken, authUser, authPage(['Admin','Super']) ,UserController.createUser);
 
 router.post("/login", UserController.loginUser);
 
 router.post("/log-out", UserController.logOutUser);
 
-router.put("/update/:id", UserController.updateUser);
+router.put("/update/:id", verifyToken, authUser, authPage(['Admin','Super']) ,UserController.updateUser);
 
-router.put("/change-password/:id", UserController.changePasswordUser);
+router.put("/change-password/:id", verifyToken, authUser, authPage(['Admin','Super']) ,UserController.changePasswordUser);
 
-router.delete("/delete-user/:id", authMiddleWare, UserController.deleteUser);
+router.delete("/delete-user/:id", verifyToken, authUser, authPage(['Admin','Super']) , UserController.deleteUser);
 
-router.post("/delete", UserController.deletesUser);
+router.post("/delete", verifyToken, authUser, authPage(['Admin','Super']) , UserController.deletesUser);
 
 router.get("/get-all", UserController.getAllUser);
 
