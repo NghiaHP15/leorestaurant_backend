@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser'); // Import thư viện cookie-parser
 const User = require('../models/User');
 
 const findUser = userId => {
@@ -6,7 +7,8 @@ const findUser = userId => {
 };
 
 const verifyToken = (req, res, next) => {
-    const token = req.cookies.refresh_token; // Get the token from cookies
+    // Sử dụng cookie-parser để lấy cookies từ yêu cầu
+    const token = req.cookies.refresh_token; // Thay 'refresh_token' bằng tên cookie của bạn
     if (!token) {
         return res.status(403).json('No token provided');
     }
@@ -16,7 +18,7 @@ const verifyToken = (req, res, next) => {
             return res.status(401).json('Failed to authenticate token');
         }
 
-        // Save user ID in request for use in other middleware
+        // Lưu ID của người dùng trong yêu cầu để sử dụng trong các middleware khác
         req.userId = decoded.id;
         next();
     });
