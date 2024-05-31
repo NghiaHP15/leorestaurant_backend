@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser'); // Import thư viện cookie-parser
 const User = require('../models/User');
 
 const findUser = userId => {
@@ -7,16 +6,17 @@ const findUser = userId => {
 };
 
 const verifyToken = (req, res, next) => {
-    const token = localStorage.getItem('access_token'); // Lấy token từ localStorage
+    const token = req.cookies.refresh_token; // Get the token from cookies
     if (!token) {
         return res.status(403).json('No token provided');
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
         if (err) {
             return res.status(401).json('Failed to authenticate token');
         }
 
+        // Save user ID in request for use in other middleware
         req.userId = decoded.id;
         next();
     });
