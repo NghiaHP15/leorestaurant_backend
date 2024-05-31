@@ -7,18 +7,16 @@ const findUser = userId => {
 };
 
 const verifyToken = (req, res, next) => {
-    // Sử dụng cookie-parser để lấy cookies từ yêu cầu
-    const token = req.cookies.refresh_token; // Thay 'refresh_token' bằng tên cookie của bạn
+    const token = localStorage.getItem('access_token'); // Lấy token từ localStorage
     if (!token) {
         return res.status(403).json('No token provided');
     }
 
-    jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(401).json('Failed to authenticate token');
         }
 
-        // Lưu ID của người dùng trong yêu cầu để sử dụng trong các middleware khác
         req.userId = decoded.id;
         next();
     });
