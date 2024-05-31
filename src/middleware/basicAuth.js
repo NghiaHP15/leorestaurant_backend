@@ -7,6 +7,7 @@ const findUser = userId => {
 
 const verifyToken = (req, res, next) => {
     const token = req.cookies.refresh_token; // Get the token from cookies
+    console.log("token",token);
     if (!token) {
         return res.status(403).json('No token provided');
     }
