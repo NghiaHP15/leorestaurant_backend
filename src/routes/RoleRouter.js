@@ -5,12 +5,20 @@ const { verifyToken, authPage, authUser } = require("../middleware/basicAuth");
 
 const router = express.Router();
 
+// router.get("/list", RoleController.listRole);
+
+// router.put("/update/:id", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.updateRole);
+
+// router.post("/delete", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.deleteRole);
+
+// router.post("/create", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.createRole);
+
 router.get("/list", RoleController.listRole);
 
-router.put("/update/:id", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.updateRole);
+router.put("/update/:id", RoleController.updateRole);
 
-router.post("/delete", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.deleteRole);
+router.post("/delete", RoleController.deleteRole);
 
-router.post("/create", verifyToken, authUser, authPage(['Admin','Super']) ,RoleController.createRole);
+router.post("/create", RoleController.createRole);
 
 module.exports = router;

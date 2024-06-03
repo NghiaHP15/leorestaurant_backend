@@ -6,14 +6,24 @@ const { verifyToken, authPage, authUser } = require("../middleware/basicAuth");
 
 const router = express.Router();
 
-router.post("/create", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.createSupplier);
+// router.post("/create", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.createSupplier);
 
-router.put("/update/:id", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.updateSupplier);
+// router.put("/update/:id", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.updateSupplier);
+
+// router.get("/get-details/:id", SupplierController.getDetail);
+
+// router.get("/get-all", SupplierController.getAll);
+
+// router.post("/delete", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.deleteSupplier);
+
+router.post("/create", SupplierController.createSupplier);
+
+router.put("/update/:id", SupplierController.updateSupplier);
 
 router.get("/get-details/:id", SupplierController.getDetail);
 
 router.get("/get-all", SupplierController.getAll);
 
-router.post("/delete", verifyToken, authUser, authPage(['Admin','Super']) ,SupplierController.deleteSupplier);
+router.post("/delete", SupplierController.deleteSupplier);
 
 module.exports = router;
