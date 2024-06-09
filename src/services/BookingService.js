@@ -4,17 +4,38 @@ const Table = require("../models/Table");
 const createBooking = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const createdBooking = await Booking.create(data);
+      // Combine date and time into a single datetime object
+      // const bookingDateTime = new Date(`${data.date}T${data.time}`);
 
-      if (createdBooking) {
+      // Check if there's already a booking for the specified table, date, and time
+      const checkBooking = await Booking.find();
+
+      // const _checkbooking = checkBooking.some(item => item.date === data.date.toString && item.time === data.time && item.table === data.table)
+      const _checkbooking = checkBooking.some(item => formatDate(item.date) === formatDate(data.date) && formatTime(item.time) === formatTime(data.time)  && (item.table).toString() === (data.table).toString() )
+      
+      // If a booking already exists for the specified table, date, and time, throw an error
+      if (_checkbooking) {
+        throw new Error("This table has already been booked for this time.");
+      }
+      else{
+        const createdBooking = await Booking.create(data);
         resolve({
           status: "OK",
-          message: "Success",
+          message: "Booking created successfully.",
           data: createdBooking,
         });
       }
+
+      // Create the new booking if there are no conflicts
+
+      // If the booking is successfully created, resolve with success message and data
+     
     } catch (error) {
-      reject(error);
+      // If an error occurs during the process, reject with the error message
+      reject({
+        status: "ERROR",
+        message: error.message,
+      });
     }
   });
 };
