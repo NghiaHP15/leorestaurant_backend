@@ -110,6 +110,17 @@ const getNofity = async (req, res) => {
   }
 };
 
+const getReport = async (req, res) => {
+  try {
+    const resultRole = await ReportService.getReport();
+    return res.status(200).json(resultRole);
+  } catch (error) {
+    return res.status(404).json({
+      message: error,
+    });
+  }
+};
+
 module.exports = {
   getAmountBill,
   getSalesBill,
@@ -121,4 +132,5 @@ module.exports = {
   getTopFoods,
   getBookings,
   getNofity,
+  getReport
 };
