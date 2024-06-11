@@ -7,16 +7,16 @@ const Recipe = require("../models/Recipe");
 const getAmountBill = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const bill = await Bill.find();
-      const count = bill.reduce((acc, invoice) => {
-        if (invoice.isPaid){
+      const bills = await Bill.find();
+      const count = bills.reduce((acc, invoice) => {
+        if (invoice.isPaid) {
           const year = invoice.timeOn.getFullYear();
           if (!acc[year]) {
             acc[year] = 0;
           }
           acc[year]++;
-          return acc;
         }
+        return acc;
       }, {});
 
       resolve({
@@ -25,10 +25,14 @@ const getAmountBill = () => {
         data: count,
       });
     } catch (error) {
-      reject(error);
+      reject({
+        status: "ERROR",
+        message: error.message,
+      });
     }
   });
 };
+
 
 const getAmountBooking = () => {
   return new Promise(async (resolve, reject) => {
