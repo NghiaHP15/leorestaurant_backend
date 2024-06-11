@@ -1,44 +1,19 @@
 const Booking = require("../models/Booking");
 const Table = require("../models/Table");
 
-// const createBooking = (data) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       // Combine date and time into a single datetime object
-//       // const bookingDateTime = new Date(`${data.date}T${data.time}`);
+const formatDate = (dateString) => {
+  let date = new Date(dateString);
+  let day = date.getDate();
+  let month = date.getMonth() + 1; // Months are zero indexed
+  let year = date.getFullYear(); // Get last two digits of the year
 
-//       // Check if there's already a booking for the specified table, date, and time
-//       const checkBooking = await Booking.find();
+  // Add leading zero if day or month is less than 10
+  day = day < 10 ? "0" + day : day;
+  month = month < 10 ? "0" + month : month;
 
-//       // const _checkbooking = checkBooking.some(item => item.date === data.date.toString && item.time === data.time && item.table === data.table)
-//       const _checkbooking = checkBooking.some(item => formatDate(item.date) === formatDate(data.date) && formatTime(item.time) === formatTime(data.time)  && (item.table).toString() === (data.table).toString() )
-      
-//       // If a booking already exists for the specified table, date, and time, throw an error
-//       if (_checkbooking) {
-//         throw new Error("This table has already been booked for this time.");
-//       }
-//       else{
-//         const createdBooking = await Booking.create(data);
-//         resolve({
-//           status: "OK",
-//           message: "Booking created successfully.",
-//           data: createdBooking,
-//         });
-//       }
+  return `${day}/${month}/${year}`;
+};
 
-//       // Create the new booking if there are no conflicts
-
-//       // If the booking is successfully created, resolve with success message and data
-     
-//     } catch (error) {
-//       // If an error occurs during the process, reject with the error message
-//       reject({
-//         status: "ERROR",
-//         message: error.message,
-//       });
-//     }
-//   });
-// };
 const createBooking = (data) => {
   return new Promise(async (resolve, reject) => {
     try {

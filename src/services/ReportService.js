@@ -248,6 +248,31 @@ const getNofity = () => {
 const getReport = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      const bill = await Bill.find().populate("booking");
+      const data1 = bill.reduce(
+        (acc, invoice) => {
+          const year = invoice.timeOn.getFullYear();
+          const month = invoice.timeOn.getMonth() + 1;
+          if (year === new Date().getFullYear() && month === 5) { // Chỉ xem xét những hóa đơn trong tháng 5 của năm hiện tại
+            const key = `${year}-${month.toString().padStart(2, "0")}`;
+            if (!acc.sales[key]) {
+              acc.sales[key] = 0;
+            }
+            if (!acc.origin[key]) {
+              acc.origin[key] = 0;
+            }
+      
+            acc.sales[key] += invoice.total || 0;
+            acc.origin[key] += invoice.booking.priceOrigin || 0;
+          }
+          return acc;
+        },
+        { sales: {}, origin: {} }
+      );
+      
+      // Trích xuất dữ liệu cho tháng 5 từ đối tượng data
+      const totalRevenueMay = data1.sales['2024-05'] || 0; // Tổng doanh thu trong tháng 5
+      const totalImportMay = data1.origin['2024-05'] || 0; // Tổng nhập khẩu trong tháng 5
       const result = await Bill.aggregate([
         {
           $group: {
@@ -299,8 +324,8 @@ const getReport = () => {
 
       const data = {
         overview: {
-          tongdoanhthu: totalRevenue,
-          loinhuan: totalProfit,
+          tongdoanhthu: totalRevenueMay,
+          loinhuan: totalImportMay,
           loinhuantheophantram: totalProfitPercent.toFixed(2) + "%",
           tongdonhangdacungcap: totalBill,
         },
