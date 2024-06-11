@@ -132,7 +132,7 @@ const deleteBill = (id) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Bill.find().populate({
+      const result = await Bill.find().sort({ createdAt: -1 }).populate({
         path: "booking",
         populate: {
           path: "table",

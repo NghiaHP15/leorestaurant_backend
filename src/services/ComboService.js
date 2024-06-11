@@ -101,7 +101,7 @@ const deleteCombo = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Combo.find();
+      const result = await Combo.find().sort({ createdAt: -1 }) ;
 
       resolve({
         status: "OK",

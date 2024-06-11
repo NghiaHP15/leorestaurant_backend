@@ -106,8 +106,8 @@ const getAll = () => {
     try {
       const result = await Recipe.find()
         .populate("categoryFood")
-        .populate("ingredient._id");
-
+        .populate("ingredient._id")
+        .sort({ createdAt: -1 });
       resolve({
         status: "OK",
         message: "Get all success",

@@ -102,7 +102,7 @@ const deleteCustomer = (data) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Customer.find();
+      const result = await Customer.find().sort({ createdAt: -1 });
 
       resolve({
         status: "OK",

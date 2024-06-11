@@ -1,20 +1,66 @@
 const Booking = require("../models/Booking");
 const Table = require("../models/Table");
 
+const formatDate = (dateString) => {
+  let date = new Date(dateString);
+  let day = date.getDate();
+  let month = date.getMonth() + 1; // Months are zero indexed
+  let year = date.getFullYear(); // Get last two digits of the year
+
+  // Add leading zero if day or month is less than 10
+  day = day < 10 ? "0" + day : day;
+  month = month < 10 ? "0" + month : month;
+
+  return `${day}/${month}/${year}`;
+};
+
+const formatTime = (dateString) => {
+  let date = new Date(dateString);
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+
+  // Add leading zero if day or month is less than 10
+  hour = hour < 10 ? "0" + hour : hour;
+  minute = minute < 10 ? "0" + minute : minute;
+  return `${hour}:${minute}`;
+};
+
 const createBooking = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const createdBooking = await Booking.create(data);
+      const checkBooking = await Booking.find().sort({ createdAt: -1 }).exec();
 
-      if (createdBooking) {
+      const _checkbooking = checkBooking.some(
+        (item) =>
+          formatDate(item.date) === formatDate(data.date) &&
+          Math.abs(
+            new Date(data.time).getHours() - new Date(item.time).getHours()
+          ) < 6 &&
+          item.table.toString() === data.table.toString() &&
+          item.cancel === false &&
+          item.paymentStatus === false
+      );
+
+      if (_checkbooking) {
         resolve({
           status: "OK",
-          message: "Success",
+          message: "Booking created successfully.",
+          error: "already",
+        });
+      } else {
+        const createdBooking = await Booking.create(data);
+        resolve({
+          status: "OK",
+          message: "Booking created successfully.",
           data: createdBooking,
         });
       }
     } catch (error) {
-      reject(error);
+      // If an error occurs during the process, reject with the error message
+      reject({
+        status: "ERROR",
+        message: error.message,
+      });
     }
   });
 };
@@ -105,7 +151,9 @@ const deleteBooking = (id) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Booking.find().populate("table");
+      const result = await Booking.find()
+        .populate("table")
+        .sort({ createdAt: -1 });
 
       resolve({
         status: "OK",
@@ -124,4 +172,39 @@ module.exports = {
   getDetail,
   deleteBooking,
   getAll,
+};
+const data = {
+  overview: {
+    tongdoanhthu: "",
+    loinhuan: "",
+    loinhuantheophantram: "",
+    tongdonhangdacungcap: "",
+  },
+  dichvu: {
+    data: [
+      {
+        tieuchi: "",
+        soluong: "",
+        donvitinh: "",
+      },
+    ],
+  },
+  doanhsobanhang: {
+    data: [
+      {
+        tieuchi: "",
+        soluong: "",
+        donvitinh: "",
+      },
+    ],
+  },
+  nhasu: {
+    data: [
+      {
+        tieuchi: "",
+        soluong: "",
+        donvitinh: "",
+      },
+    ],
+  },
 };

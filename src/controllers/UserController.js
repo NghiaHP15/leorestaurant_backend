@@ -61,6 +61,8 @@ const updateUser = async (req, res) => {
   try {
     const userID = req.params.id;
     const data = req.body;
+    // const token = req.headers;
+    // console.log(object);
     if (!userID) {
       return res.status(200).json({
         status: "ERR",
@@ -80,7 +82,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userID = req.params.id;
-    // const token = req.headers;
+
     if (!userID) {
       return res.status(200).json({
         status: "ERR",
@@ -160,7 +162,7 @@ const getDetailUser = async (req, res) => {
 const refreshToken = async (req, res) => {
   try {
     const token = req.headers.token.split(" ")[1];
-
+    console.log("token", token);
     if (!token) {
       return res.status(200).json({
         status: "ERR",
