@@ -9,7 +9,7 @@ const getAmountBill = () => {
     try {
       const bill = await Bill.find();
       const count = bill.reduce((acc, invoice) => {
-        if (invoice.isPaid === true){
+        if (invoice.isPaid){
           const year = invoice.timeOn.getFullYear();
           if (!acc[year]) {
             acc[year] = 0;
