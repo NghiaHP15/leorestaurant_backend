@@ -9,11 +9,13 @@ const getAmountBill = () => {
     try {
       const bill = await Bill.find();
       const count = bill.reduce((acc, invoice) => {
-        const year = invoice.timeOn.getFullYear();
-        if (!acc[year]) {
-          acc[year] = 0;
+        if (invoice.isPaid) {
+          const year = invoice.timeOut.getFullYear();
+          if (!acc[year]) {
+            acc[year] = 0;
+          }
+          acc[year]++;
         }
-        acc[year]++;
         return acc;
       }, {});
 
@@ -82,15 +84,19 @@ const getSalesBill = () => {
       const bill = await Bill.find();
       let total = 0;
       const count = bill.reduce((acc, invoice) => {
-        const year = invoice.timeOn.getFullYear();
-        if (!acc[year]) {
-          acc[year] = 0;
+        if (invoice.isPaid) {
+          console.log(1);
+          const year = invoice.timeOut.getFullYear();
+          console.log(year);
+          if (!acc[year]) {
+            acc[year] = 0;
+          }
+          // if (invoice.total) {
+          //   total = total + invoice.total;
+          // }
+          // acc[year] = total;
+          // return acc;
         }
-        if (invoice.total) {
-          total = total + invoice.total;
-        }
-        acc[year] = total;
-        return acc;
       }, {});
 
       resolve({
@@ -143,19 +149,23 @@ const getSalesFigures = () => {
       const bill = await Bill.find().populate("booking");
       const data = bill.reduce(
         (acc, invoice) => {
-          const year = invoice.timeOn.getFullYear();
-          const month = invoice.timeOn.getMonth() + 1;
-          const key = `${year}-${month.toString().padStart(2, "0")}`;
-          if (!acc.sales[key]) {
-            acc.sales[key] = 0;
-          }
-          if (!acc.origin[key]) {
-            acc.origin[key] = 0;
-          }
+          if (invoice.isPaid) {
+            const year = invoice.timeOut.getFullYear();
+            const month = invoice.timeOut.getMonth() + 1;
+            const key = `${year}-${month.toString().padStart(2, "0")}`;
+            if (!acc.sales[key]) {
+              acc.sales[key] = 0;
+            }
+            if (!acc.origin[key]) {
+              acc.origin[key] = 0;
+            }
+            if (invoice.isPaid === true) {
+              acc.sales[key] += invoice.total || 0;
+              acc.origin[key] += invoice.booking.priceOrigin || 0;
+            }
 
-          acc.sales[key] += invoice.total || 0;
-          acc.origin[key] += invoice.booking.priceOrigin || 0;
-          return acc;
+            return acc;
+          }
         },
         { sales: {}, origin: {} }
       );
@@ -245,6 +255,153 @@ const getNofity = () => {
   });
 };
 
+const getReport = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Bill.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$total" },
+          },
+        },
+      ]);
+
+      const result1 = await Recipe.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$priceOrigin" },
+          },
+        },
+      ]);
+
+      const totalRevenue = result.length > 0 ? result[0].total : 0;
+      const totalImport = result1.length > 0 ? result1[0].total : 0;
+      const totalProfit = totalRevenue - totalImport;
+      const totalProfitPercent =
+        totalRevenue !== 0 ? (totalProfit / totalRevenue) * 100 : 0;
+      const totalBill = await Bill.countDocuments();
+      const totalCustomer = await Customer.countDocuments();
+      const averageCustomer =
+        totalCustomer !== 0 ? totalRevenue / totalCustomer : 0;
+      const totalStaff = await Staff.countDocuments();
+
+      // Aggregate to count the number of recipes in each categoryFood
+      const categoryCounts = await Recipe.aggregate([
+        {
+          $group: {
+            _id: "$categoryFood",
+            totalRecipes: { $sum: 1 },
+          },
+        },
+      ]);
+
+      // Define category IDs for each food type
+      const appetizerCategoryId = "6654deef2ad729eb81253e35";
+      const mainCourseCategoryId = "6654defa2ad729eb81253e39";
+      const beverageCategoryId = "662f6c14983603fe05e044ec";
+      const dessertCategoryId = "6654df0b2ad729eb81253e3e";
+
+      // Find the counts for each category
+      const appetizerCount =
+        categoryCounts.find(
+          (item) => item._id.toString() === appetizerCategoryId
+        )?.totalRecipes || 0;
+      const mainCourseCount =
+        categoryCounts.find(
+          (item) => item._id.toString() === mainCourseCategoryId
+        )?.totalRecipes || 0;
+      const beverageCount =
+        categoryCounts.find(
+          (item) => item._id.toString() === beverageCategoryId
+        )?.totalRecipes || 0;
+      const dessertCount =
+        categoryCounts.find((item) => item._id.toString() === dessertCategoryId)
+          ?.totalRecipes || 0;
+
+      const data = {
+        overview: {
+          tongdoanhthu: totalRevenue,
+          loinhuan: totalProfit,
+          loinhuantheophantram: totalProfitPercent.toFixed(2) + "%",
+          tongdonhangdacungcap: totalBill,
+        },
+        dichvu: {
+          data: [
+            {
+              tieuchi: "Món khai vị",
+              soluong: appetizerCount,
+              donvitinh: "Món",
+            },
+            {
+              tieuchi: "Món chính",
+              soluong: mainCourseCount,
+              donvitinh: "Món",
+            },
+            {
+              tieuchi: "Thức uống",
+              soluong: beverageCount,
+              donvitinh: "Món",
+            },
+            {
+              tieuchi: "Món tráng miệng",
+              soluong: dessertCount,
+              donvitinh: "Món",
+            },
+          ],
+        },
+        doanhsobanhang: {
+          data: [
+            {
+              tieuchi: "Số lượng khách hàng",
+              soluong: totalCustomer,
+              donvitinh: "Khách",
+            },
+            {
+              tieuchi: "Số lượng đơn hàng",
+              soluong: totalBill,
+              donvitinh: "Đơn",
+            },
+            {
+              tieuchi: "Doanh thu trung bình mỗi khách hàng",
+              soluong: averageCustomer.toFixed(2),
+              donvitinh: "VND",
+            },
+          ],
+        },
+        nhansu: {
+          data: [
+            {
+              tieuchi: "Tổng số lượng nhân viên",
+              soluong: totalStaff,
+              donvitinh: "Nhân viên",
+            },
+            {
+              tieuchi: "Số lượng nhân viên mới",
+              soluong: 0, // Placeholder value, adjust as needed
+              donvitinh: "Nhân viên",
+            },
+            {
+              tieuchi: "Số lượng nhân viên thôi việc",
+              soluong: 0, // Placeholder value, adjust as needed
+              donvitinh: "Nhân viên",
+            },
+          ],
+        },
+      };
+
+      resolve({
+        status: "OK",
+        message: "Lay du lieu thanh cong",
+        data: data,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getAmountBill,
   getSalesBill,
@@ -256,4 +413,5 @@ module.exports = {
   getTopFoods,
   getBookings,
   getNofity,
+  getReport,
 };

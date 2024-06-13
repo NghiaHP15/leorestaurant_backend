@@ -25,4 +25,6 @@ router.get("/get-booking", ReportController.getBookings);
 
 router.get("/get-notify", ReportController.getNofity);
 
+router.get("/get-report", ReportController.getReport);
+
 module.exports = router;

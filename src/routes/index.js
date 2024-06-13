@@ -34,7 +34,6 @@ const routes = (app) => {
   app.use("/api/infor", Infor);
   app.use("/api/banner", Banner);
   app.use("/api/gallery", Gallery);
-  app.use("/api/gallery", Gallery);
   app.use("/api/category-food", CategoryFood);
   app.use("/api/category-menu", CategoryMenu);
   app.use("/api/category-ingredient", CategoryIngredient);
@@ -55,8 +54,7 @@ const routes = (app) => {
   app.use("/api/combo", Combo);
   app.use("/api/report", Report);
   app.use("/api/role", Role);
-  app.use("/api/permission", Permission);
-  app.use("/api/upload", Upload);
+  app.use("/api/permission", Permission)
   app.use("/api/upload", Upload);
 };
 

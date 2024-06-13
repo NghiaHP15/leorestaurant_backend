@@ -14,17 +14,6 @@ const formatDate = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
-const formatTime = (dateString) => {
-  let date = new Date(dateString);
-  let hour = date.getHours();
-  let minute = date.getMinutes();
-
-  // Add leading zero if day or month is less than 10
-  hour = hour < 10 ? "0" + hour : hour;
-  minute = minute < 10 ? "0" + minute : minute;
-  return `${hour}:${minute}`;
-};
-
 const createBooking = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -64,7 +53,6 @@ const createBooking = (data) => {
     }
   });
 };
-
 const updateBooking = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -172,39 +160,4 @@ module.exports = {
   getDetail,
   deleteBooking,
   getAll,
-};
-const data = {
-  overview: {
-    tongdoanhthu: "",
-    loinhuan: "",
-    loinhuantheophantram: "",
-    tongdonhangdacungcap: "",
-  },
-  dichvu: {
-    data: [
-      {
-        tieuchi: "",
-        soluong: "",
-        donvitinh: "",
-      },
-    ],
-  },
-  doanhsobanhang: {
-    data: [
-      {
-        tieuchi: "",
-        soluong: "",
-        donvitinh: "",
-      },
-    ],
-  },
-  nhasu: {
-    data: [
-      {
-        tieuchi: "",
-        soluong: "",
-        donvitinh: "",
-      },
-    ],
-  },
 };
