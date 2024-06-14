@@ -9,6 +9,7 @@ const billSchema = new mongoose.Schema(
     },
     timeOn: { type: Date },
     timeOut: { type: Date },
+    servicePrice: { type: Number, default: 5 },
     paymentMethod: { type: String },
     total: { type: Number },
     name_staff: { type: String },

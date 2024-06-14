@@ -35,7 +35,7 @@ const loginUser = async (req, res) => {
       secure: false,
       samesite: "strict",
     });
-    return res.status(200).json({ ...newReponse, refresh_token });
+    return res.status(200).json({...newReponse, refresh_token});
   } catch (error) {
     return res.status(404).json({
       message: error,
@@ -82,7 +82,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userID = req.params.id;
-
+    
     if (!userID) {
       return res.status(200).json({
         status: "ERR",

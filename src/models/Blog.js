@@ -6,6 +6,7 @@ const blogSchema = new mongoose.Schema(
     image: { type: String },
     description: { type: String },
     content: { type: String },
+    categoryBlog: { type: String },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",

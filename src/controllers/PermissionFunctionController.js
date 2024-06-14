@@ -1,6 +1,6 @@
-const PermissionService = require("../services/PermissionService");
+const PermissionFunctionService = require("../services/PermissionFunctionService");
 
-const createPermission = async (req, res) => {
+const createPermissionFunction = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {
@@ -9,7 +9,9 @@ const createPermission = async (req, res) => {
         message: "The input is required",
       });
     }
-    const response = await PermissionService.createPermission(req.body);
+    const response = await PermissionFunctionService.createPermissionFunction(
+      req.body
+    );
     return res.status(200).json(response);
   } catch (error) {
     return res.status(404).json({
@@ -18,7 +20,7 @@ const createPermission = async (req, res) => {
   }
 };
 
-const updatePermission = async (req, res) => {
+const updatePermissionFunction = async (req, res) => {
   try {
     const permissionId = req.params.id;
     const data = req.body;
@@ -28,7 +30,8 @@ const updatePermission = async (req, res) => {
         message: "The permission Id is required",
       });
     }
-    const response = await PermissionService.updatePermission(
+
+    const response = await PermissionFunctionService.updatePermissionFunction(
       permissionId,
       data
     );
@@ -43,13 +46,15 @@ const updatePermission = async (req, res) => {
 const getDetail = async (req, res) => {
   try {
     const permissionId = req.params.id;
+
     if (!permissionId) {
       return res.status(200).json({
         status: "ERR",
         message: "The permission Id is required",
       });
     }
-    const response = await PermissionService.getDetail(permissionId);
+
+    const response = await PermissionFunctionService.getDetail(customerId);
     return res.status(200).json(response);
   } catch (error) {
     return res.status(404).json({
@@ -58,7 +63,7 @@ const getDetail = async (req, res) => {
   }
 };
 
-const deletePermission = async (req, res) => {
+const deletePermissionFunction = async (req, res) => {
   try {
     const permissionId = req.params.id;
     // const token = req.headers;
@@ -69,7 +74,9 @@ const deletePermission = async (req, res) => {
       });
     }
 
-    const response = await PermissionService.deletePermission(permissionId);
+    const response = await PermissionFunctionService.deletePermissionFunction(
+      permissionId
+    );
     return res.status(200).json(response);
   } catch (error) {
     return res.status(404).json({
@@ -80,13 +87,7 @@ const deletePermission = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    const { limit, page, sort, filter } = req.query;
-    const response = await PermissionService.getAll(
-      Number(limit) || 8,
-      Number(page) || 0,
-      sort,
-      filter
-    );
+    const response = await PermissionFunctionService.getAll();
     return res.status(200).json(response);
   } catch (error) {
     return res.status(404).json({
@@ -95,9 +96,9 @@ const getAll = async (req, res) => {
   }
 };
 module.exports = {
-  createPermission,
-  updatePermission,
+  createPermissionFunction,
+  updatePermissionFunction,
   getDetail,
-  deletePermission,
+  deletePermissionFunction,
   getAll,
 };

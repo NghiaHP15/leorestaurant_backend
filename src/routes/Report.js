@@ -27,4 +27,6 @@ router.get("/get-notify", ReportController.getNofity);
 
 router.get("/get-report", ReportController.getReport);
 
+router.get("/get-report-day", ReportController.getReportDay);
+
 module.exports = router;

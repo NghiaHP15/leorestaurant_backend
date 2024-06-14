@@ -4,13 +4,26 @@ const Booking = require("../models/Booking");
 const Staff = require("../models/Staff");
 const Recipe = require("../models/Recipe");
 
+const formatDate = (dateString) => {
+  let date = new Date(dateString);
+  let day = date.getDate();
+  let month = date.getMonth() + 1; // Months are zero indexed
+  let year = date.getFullYear(); // Get last two digits of the year
+
+  // Add leading zero if day or month is less than 10
+  day = day < 10 ? "0" + day : day;
+  month = month < 10 ? "0" + month : month;
+
+  return `${year}-${month}-${day}`;
+};
+
 const getAmountBill = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const bill = await Bill.find();
-      const count = bill.reduce((acc, invoice) => {
+      const bills = await Bill.find();
+      const count = bills.reduce((acc, invoice) => {
         if (invoice.isPaid) {
-          const year = invoice.timeOut.getFullYear();
+          const year = invoice.timeOn.getFullYear();
           if (!acc[year]) {
             acc[year] = 0;
           }
@@ -25,7 +38,10 @@ const getAmountBill = () => {
         data: count,
       });
     } catch (error) {
-      reject(error);
+      reject({
+        status: "ERROR",
+        message: error.message,
+      });
     }
   });
 };
@@ -84,19 +100,15 @@ const getSalesBill = () => {
       const bill = await Bill.find();
       let total = 0;
       const count = bill.reduce((acc, invoice) => {
-        if (invoice.isPaid) {
-          console.log(1);
-          const year = invoice.timeOut.getFullYear();
-          console.log(year);
-          if (!acc[year]) {
-            acc[year] = 0;
-          }
-          // if (invoice.total) {
-          //   total = total + invoice.total;
-          // }
-          // acc[year] = total;
-          // return acc;
+        const year = invoice.timeOn.getFullYear();
+        if (!acc[year]) {
+          acc[year] = 0;
         }
+        if (invoice.total) {
+          total = total + invoice.total;
+        }
+        acc[year] = total;
+        return acc;
       }, {});
 
       resolve({
@@ -149,23 +161,21 @@ const getSalesFigures = () => {
       const bill = await Bill.find().populate("booking");
       const data = bill.reduce(
         (acc, invoice) => {
-          if (invoice.isPaid) {
-            const year = invoice.timeOut.getFullYear();
-            const month = invoice.timeOut.getMonth() + 1;
-            const key = `${year}-${month.toString().padStart(2, "0")}`;
-            if (!acc.sales[key]) {
-              acc.sales[key] = 0;
-            }
-            if (!acc.origin[key]) {
-              acc.origin[key] = 0;
-            }
-            if (invoice.isPaid === true) {
-              acc.sales[key] += invoice.total || 0;
-              acc.origin[key] += invoice.booking.priceOrigin || 0;
-            }
-
-            return acc;
+          const year = invoice.timeOn.getFullYear();
+          const month = invoice.timeOn.getMonth() + 1;
+          const key = `${year}-${month.toString().padStart(2, "0")}`;
+          if (!acc.sales[key]) {
+            acc.sales[key] = 0;
           }
+          if (!acc.origin[key]) {
+            acc.origin[key] = 0;
+          }
+          if (invoice.isPaid === true) {
+            acc.sales[key] += invoice.total || 0;
+            acc.origin[key] += invoice.booking.priceOrigin || 0;
+          }
+
+          return acc;
         },
         { sales: {}, origin: {} }
       );
@@ -258,6 +268,33 @@ const getNofity = () => {
 const getReport = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      const dateNow = new Date();
+      console.log(formatDate(dateNow));
+      const bill = await Bill.find().populate("booking");
+      const data1 = bill.reduce(
+        (acc, invoice) => {
+          const year = invoice.timeOn.getFullYear();
+          const month = invoice.timeOn.getMonth() + 1;
+          const key = `${year}-${month.toString().padStart(2, "0")}`;
+          if (!acc.sales[key]) {
+            acc.sales[key] = 0;
+          }
+          if (!acc.origin[key]) {
+            acc.origin[key] = 0;
+          }
+          if (invoice.isPaid === true) {
+            acc.sales[key] += invoice.total || 0;
+            acc.origin[key] += invoice.booking.priceOrigin || 0;
+          }
+
+          return acc;
+        },
+        { sales: {}, origin: {} }
+      );
+
+      // Trích xuất dữ liệu cho tháng 5 từ đối tượng data
+      const totalRevenue6 = data1.sales[formatDate(dateNow)] || 0; // Tổng doanh thu trong tháng 5
+      const totalImport6 = data1.origin["2024-06"] || 0; // Tổng nhập khẩu trong tháng 5
       const result = await Bill.aggregate([
         {
           $group: {
@@ -267,17 +304,11 @@ const getReport = () => {
         },
       ]);
 
-      const result1 = await Recipe.aggregate([
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$priceOrigin" },
-          },
-        },
-      ]);
-
       const totalRevenue = result.length > 0 ? result[0].total : 0;
-      const totalImport = result1.length > 0 ? result1[0].total : 0;
+      const totalImport = Object.values(data1.origin).reduce(
+        (sum, value) => sum + value,
+        0
+      );
       const totalProfit = totalRevenue - totalImport;
       const totalProfitPercent =
         totalRevenue !== 0 ? (totalProfit / totalRevenue) * 100 : 0;
@@ -322,8 +353,8 @@ const getReport = () => {
 
       const data = {
         overview: {
-          tongdoanhthu: totalRevenue,
-          loinhuan: totalProfit,
+          tongdoanhthu: totalRevenue6,
+          loinhuan: totalImport,
           loinhuantheophantram: totalProfitPercent.toFixed(2) + "%",
           tongdonhangdacungcap: totalBill,
         },
@@ -402,6 +433,37 @@ const getReport = () => {
   });
 };
 
+const getReportDay = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const dateNow = new Date();
+      const formattedDateNow = formatDate(dateNow);
+      const bill = await Bill.find();
+      let total = 0;
+      const count = bill.forEach((item, index) => {
+        const date = formatDate(item.timeOut);
+        if (formattedDateNow === date) {
+          total += item.total;
+        }
+      });
+
+      const data = {
+        overview: {
+          tongdoanhthu: total,
+        },
+      };
+
+      resolve({
+        status: "OK",
+        message: "Lay du lieu thanh cong",
+        data: data,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getAmountBill,
   getSalesBill,
@@ -414,4 +476,5 @@ module.exports = {
   getBookings,
   getNofity,
   getReport,
+  getReportDay,
 };

@@ -1,5 +1,5 @@
 const express = require("express");
-const PermissionController = require('../controllers/PermissionController')
+const PermissionController = require("../controllers/PermissionController");
 
 const { authMiddleWare } = require("../middleware/authMiddleware");
 const { verifyToken, authPage, authUser } = require("../middleware/basicAuth");
@@ -16,14 +16,14 @@ const router = express.Router();
 
 // router.delete('/delete/:id',verifyToken, authUser, authPage(['Admin','Super']) , PermissionController.deletePermission)
 
-router.post('/create',PermissionController.createPermission)
+router.post("/create", PermissionController.createPermission);
 
-router.put('/update/:id', authMiddleWare, PermissionController.updatePermission)
+router.put("/update/:id", PermissionController.updatePermission);
 
-router.get('/get-details/:id', PermissionController.getDetail)
+router.get("/get-details/:id", PermissionController.getDetail);
 
-router.get('/get-all', PermissionController.getAll)
+router.get("/get-all", PermissionController.getAll);
 
-router.delete('/delete/:id',authMiddleWare, PermissionController.deletePermission)
+router.delete("/delete/:id", PermissionController.deletePermission);
 
 module.exports = router;

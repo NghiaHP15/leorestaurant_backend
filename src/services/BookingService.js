@@ -139,9 +139,7 @@ const deleteBooking = (id) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await Booking.find()
-        .populate("table")
-        .sort({ createdAt: -1 });
+      const result = await Booking.find().populate("table").sort({ createdAt: -1 });
 
       resolve({
         status: "OK",

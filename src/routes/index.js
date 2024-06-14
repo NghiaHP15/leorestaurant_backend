@@ -18,6 +18,7 @@ const Report = require("./Report");
 const Upload = require("./UploadRouter");
 const Role = require("./RoleRouter");
 const Permission = require("./Permission");
+const PersmissionFunction = require("./PersmissionFunction");
 const Table = require("./Table");
 const Area = require("./Area");
 const CategoryBanner = require("./CategoryBanner");
@@ -33,6 +34,7 @@ const routes = (app) => {
   app.use("/api/blog", Blog);
   app.use("/api/infor", Infor);
   app.use("/api/banner", Banner);
+  app.use("/api/gallery", Gallery);
   app.use("/api/gallery", Gallery);
   app.use("/api/category-food", CategoryFood);
   app.use("/api/category-menu", CategoryMenu);
@@ -54,7 +56,9 @@ const routes = (app) => {
   app.use("/api/combo", Combo);
   app.use("/api/report", Report);
   app.use("/api/role", Role);
-  app.use("/api/permission", Permission)
+  app.use("/api/permission", Permission);
+  app.use("/api/permission-function", PersmissionFunction);
+  app.use("/api/upload", Upload);
   app.use("/api/upload", Upload);
 };
 
